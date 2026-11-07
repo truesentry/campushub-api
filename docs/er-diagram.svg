@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">CampusHub PostgreSQL ER diagram</title>
+  <desc id="desc">Users, categories, events, registrations, and materials with primary keys, foreign keys, optional fields, and relationship cardinalities.</desc>
+  <style>
+    .box { fill:#f8fafc; stroke:#2563eb; stroke-width:2; rx:10; }
+    .head { fill:#1d4ed8; }
+    .name { fill:#fff; font:700 18px Arial,sans-serif; }
+    .field { fill:#172554; font:15px Arial,sans-serif; }
+    .link { stroke:#475569; stroke-width:2; fill:none; marker-end:url(#arrow); }
+    .card { fill:#334155; font:700 15px Arial,sans-serif; }
+    .note { fill:#475569; font:13px Arial,sans-serif; }
+  </style>
+  <defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#475569"/></marker></defs>
+  <text x="40" y="38" fill="#0f172a" font-family="Arial,sans-serif" font-size="26" font-weight="700">CampusHub - PostgreSQL ER diagram</text>
+  <text x="40" y="64" class="note">PK = primary key, FK = foreign key, * = required, ? = optional</text>
+
+  <g transform="translate(55 120)"><rect class="box" width="290" height="155"/><rect class="head" width="290" height="38" rx="10"/><text class="name" x="16" y="26">users</text><text class="field" x="16" y="65">PK  id BIGINT *</text><text class="field" x="16" y="90">name TEXT *</text><text class="field" x="16" y="115">email TEXT * UNIQUE</text><text class="field" x="16" y="140">created_at TIMESTAMPTZ *</text></g>
+  <g transform="translate(855 120)"><rect class="box" width="290" height="100"/><rect class="head" width="290" height="38" rx="10"/><text class="name" x="16" y="26">categories</text><text class="field" x="16" y="65">PK  id BIGINT *</text><text class="field" x="16" y="90">name TEXT * UNIQUE</text></g>
+  <g transform="translate(435 280)"><rect class="box" width="330" height="205"/><rect class="head" width="330" height="38" rx="10"/><text class="name" x="16" y="26">events</text><text class="field" x="16" y="65">PK  id BIGINT *</text><text class="field" x="16" y="90">title TEXT *</text><text class="field" x="16" y="115">description TEXT ?</text><text class="field" x="16" y="140">starts_at / ends_at TIMESTAMPTZ *</text><text class="field" x="16" y="165">capacity INTEGER * CHECK &gt; 0</text><text class="field" x="16" y="190">FK  category_id BIGINT *</text></g>
+  <g transform="translate(55 520)"><rect class="box" width="330" height="145"/><rect class="head" width="330" height="38" rx="10"/><text class="name" x="16" y="26">registrations</text><text class="field" x="16" y="65">PK  id BIGINT *</text><text class="field" x="16" y="90">FK  user_id BIGINT *</text><text class="field" x="16" y="115">FK  event_id BIGINT *</text><text class="field" x="16" y="140">registered_at TIMESTAMPTZ *</text></g>
+  <g transform="translate(825 535)"><rect class="box" width="320" height="120"/><rect class="head" width="320" height="38" rx="10"/><text class="name" x="16" y="26">materials</text><text class="field" x="16" y="65">PK  id BIGINT *</text><text class="field" x="16" y="90">FK  event_id BIGINT *</text><text class="field" x="16" y="115">title TEXT *, url TEXT *</text></g>
+
+  <path class="link" d="M345 198 C425 198 415 540 55 590"/><text class="card" x="365" y="210">1</text><text class="card" x="305" y="540">N</text><text class="note" x="150" y="505">CASCADE</text>
+  <path class="link" d="M855 190 C790 190 780 335 765 365"/><text class="card" x="825" y="205">1</text><text class="card" x="785" y="335">N</text><text class="note" x="770" y="255">RESTRICT</text>
+  <path class="link" d="M555 485 C510 520 430 555 385 580"/><text class="card" x="535" y="515">1</text><text class="card" x="410" y="550">N</text><text class="note" x="510" y="560">CASCADE</text>
+  <path class="link" d="M765 445 C825 470 900 520 915 535"/><text class="card" x="795" y="475">1</text><text class="card" x="880" y="510">N</text><text class="note" x="760" y="520">CASCADE</text>
+  <text x="425" y="710" class="note">users M:N events is implemented through registrations; UNIQUE (user_id, event_id) prevents duplicate pairs.</text>
+</svg>

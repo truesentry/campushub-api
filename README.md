@@ -140,3 +140,17 @@ src/app.ts contains the Express application, middleware and routes.
 src/server.ts is responsible for starting the HTTP server and opening the configured port.
 
 Separating these responsibilities allows the Express application to be tested without starting a network server.
+
+## Practical work 7: PostgreSQL design
+
+Database artifacts are in `database/` and use PostgreSQL 16+ syntax:
+
+```bash
+createdb campushub
+psql -d campushub -f database/schema.sql
+psql -d campushub -f database/seed.sql
+psql -d campushub -f database/queries.sql
+psql -d campushub -f database/negative-tests.sql
+```
+
+The last command ends with `ROLLBACK`, so it demonstrates constraints and cascade deletion without changing the seed data. The ER diagram is `docs/er-diagram.svg`; the resource map and expected results are in `docs/resource-map.md` and `docs/query-results.md`.
