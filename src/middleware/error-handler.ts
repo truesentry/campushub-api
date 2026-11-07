@@ -4,8 +4,8 @@ import type { ApiError, ValidationErrorItem } from "../types/api-error";
 const titles: Record<string, string> = {
   VALIDATION_ERROR: "Request validation failed",
   EVENT_NOT_FOUND: "Event not found",
-  EVENT_ALREADY_EXISTS: "Event already exists",
-  EVENT_LIMIT_REACHED: "Event limit reached",
+  CATEGORY_NOT_FOUND: "Category not found",
+  REGISTRATION_ALREADY_EXISTS: "Registration already exists",
   ROUTE_NOT_FOUND: "Route not found",
   INTERNAL_SERVER_ERROR: "Internal server error",
 };
