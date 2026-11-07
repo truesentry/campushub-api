@@ -116,18 +116,6 @@ curl -i http://localhost:3000/api/unknown
 
 For the global error handler check, open `http://localhost:3000/api/events/error/test`. It returns `500` with the same `requestId` that appears in `X-Request-Id` and in the server log.
 
-## Practical work 4: configuration, validation, and uniform errors
-
-This continuation uses `dotenv` and Zod. The local `.env` file is ignored by Git; `.env.example` documents the required variables: `PORT`, `NODE_ENV`, `LOG_LEVEL`, and `MAX_EVENTS`.
-
-- `src/config/env.ts` parses and validates environment variables before the server starts. Invalid values such as `PORT=hello`, `PORT=99999`, or `NODE_ENV=local` stop startup and print a configuration error.
-- `src/schemas/event.schemas.ts` strictly validates event creation, partial updates, and numeric positive path IDs. Unknown fields are rejected; `PATCH {}` is rejected.
-- `src/middleware/validate.ts` is one reusable middleware for `body`, `params`, or `query`. Validated data replaces the raw request data, so `req.params.id` is a number and default values are applied.
-- `src/middleware/not-found.ts` forwards an error to the global handler. `src/middleware/error-handler.ts` returns every API error using Problem Details (`application/problem+json`) with `code` and `requestId`.
-- `src/routes/events.router.ts` applies business rules: missing event (`404`), duplicate event (`409`), and configured event limit (`409`).
-
-Use the detailed commands, statuses, response-header checks, and JSON examples in `docs/practical-4-curl-results.md`.
-
 Project structure
 campushub-api/
 ├── src/
