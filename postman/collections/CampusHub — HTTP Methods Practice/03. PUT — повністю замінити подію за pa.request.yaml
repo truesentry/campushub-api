@@ -1,0 +1,23 @@
+$kind: http-request
+name: 03. PUT — повністю замінити подію за path id (200)
+description: "Очікується: 200, Content-Type application/json, body із повністю заміненими title і date. Перевіряє path-параметр."
+url: "{{baseUrl}}/api/events-from-file/{{createdEventId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+  X-Lab-Request: http-methods-practice
+body:
+  type: json
+  content: |-
+    {
+      "title": "Postman: подію замінено",
+      "date": "2026-11-21"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Статус 200', () => pm.response.to.have.status(200));
+      pm.test('Content-Type — JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));
+      pm.test('Body містить замінені поля', () => { const body = pm.response.json(); pm.expect(body.id).to.eql(pm.collectionVariables.get('createdEventId')); pm.expect(body.title).to.eql('Postman: подію замінено'); pm.expect(body.date).to.eql('2026-11-21'); });
+    language: text/javascript
+order: 3000

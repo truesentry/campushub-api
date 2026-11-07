@@ -1,0 +1,5 @@
+$kind: collection
+description: "8 запитів: 5 позитивних і 3 негативних. Запускайте всю колекцію у вказаному порядку: POST зберігає id створеної події у collection variable, а PUT/PATCH/DELETE використовують його. Секретів немає: достатньо запустити локальний сервер на {{baseUrl}}."
+variables:
+  baseUrl: http://localhost:3000
+  createdEventId: ""

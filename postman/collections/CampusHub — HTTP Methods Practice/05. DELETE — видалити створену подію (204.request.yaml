@@ -1,0 +1,15 @@
+$kind: http-request
+name: 05. DELETE — видалити створену подію (204)
+description: "Очікується: 204 без body та без Content-Type; це коректна HTTP-відповідь для успішного видалення."
+url: "{{baseUrl}}/api/events-from-file/{{createdEventId}}"
+method: DELETE
+headers:
+  X-Lab-Request: http-methods-practice
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Статус 204', () => pm.response.to.have.status(204));
+      pm.test('Content-Type відсутній для 204', () => pm.expect(pm.response.headers.get('Content-Type')).to.not.exist);
+      pm.test('Body порожній', () => pm.expect(pm.response.text()).to.eql(''));
+    language: text/javascript
+order: 5000

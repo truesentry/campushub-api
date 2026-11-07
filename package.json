@@ -14,7 +14,9 @@
     "node": ">=20"
   },
   "dependencies": {
-    "express": "^5.1.0"
+    "dotenv": "^18.0.9",
+    "express": "^5.1.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",

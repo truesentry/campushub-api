@@ -1,0 +1,18 @@
+$kind: http-request
+name: 01. GET — список подій за query-параметром (200)
+description: "Очікується: 200, Content-Type application/json, масив подій із date 2026-09-12. Перевіряє query і custom request/response header."
+url: "{{baseUrl}}/api/events-from-file?date=2026-09-12"
+method: GET
+headers:
+  X-Lab-Request: http-methods-practice
+queryParams:
+  date: 2026-09-12
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Статус 200', () => pm.response.to.have.status(200));
+      pm.test('Content-Type — JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));
+      pm.test('Custom header присутній', () => pm.expect(pm.response.headers.get('X-API-Name')).to.eql('CampusHub'));
+      pm.test('Body містить події за датою', () => { const body = pm.response.json(); pm.expect(body).to.be.an('array').and.not.empty; pm.expect(body[0].date).to.eql('2026-09-12'); });
+    language: text/javascript
+order: 1000

@@ -1,9 +1,15 @@
 import { Router } from "express";
+import { env } from "../config/env";
+import { validate } from "../middleware/validate";
+import { createEventSchema, eventIdSchema, updateEventSchema, type CreateEventInput, type UpdateEventInput } from "../schemas/event.schemas";
+import { createApiError } from "../types/api-error";
 
 interface EventItem {
   id: number;
   title: string;
   date: string;
+  description?: string;
+  isOnline: boolean;
 }
 
 const events: EventItem[] = [
@@ -11,6 +17,7 @@ const events: EventItem[] = [
     id: 1,
     title: "JavaScript Meetup",
     date: "2026-10-10",
+    isOnline: false,
   },
 ];
 
@@ -32,59 +39,55 @@ eventsRouter.get("/", (_req, res) => {
   res.status(200).json(events);
 });
 
-eventsRouter.get("/:id", (req, res) => {
-  const event = events.find((item) => item.id === Number(req.params.id));
+eventsRouter.get("/:id", validate(eventIdSchema, "params"), (req, res, next) => {
+  const { id } = req.params as unknown as { id: number };
+  const event = events.find((item) => item.id === id);
 
   if (!event) {
-    return res.status(404).json({ message: "Event not found" });
+    return next(createApiError(`Event with id ${id} was not found`, 404, "EVENT_NOT_FOUND"));
   }
 
   return res.status(200).json(event);
 });
 
-eventsRouter.post("/", (req, res) => {
-  const { title, date } = req.body as { title?: unknown; date?: unknown };
-
-  if (typeof title !== "string" || !title.trim() || typeof date !== "string" || !date.trim()) {
-    return res.status(400).json({ message: "title and date are required" });
+eventsRouter.post("/", validate(createEventSchema), (req, res, next) => {
+  const input = req.body as CreateEventInput;
+  const duplicate = events.find((event) => event.title.toLowerCase() === input.title.toLowerCase() && event.date === input.date);
+  if (duplicate) {
+    return next(createApiError("Event with the same title and date already exists", 409, "EVENT_ALREADY_EXISTS"));
+  }
+  if (events.length >= env.MAX_EVENTS) {
+    return next(createApiError("Maximum number of events has been reached", 409, "EVENT_LIMIT_REACHED"));
   }
 
   const newEvent: EventItem = {
     id: nextEventId++,
-    title: title.trim(),
-    date: date.trim(),
+    ...input,
   };
   events.push(newEvent);
 
   return res.status(201).json(newEvent);
 });
 
-eventsRouter.patch("/:id", (req, res) => {
-  const event = events.find((item) => item.id === Number(req.params.id));
+eventsRouter.patch("/:id", validate(eventIdSchema, "params"), validate(updateEventSchema), (req, res, next) => {
+  const { id } = req.params as unknown as { id: number };
+  const event = events.find((item) => item.id === id);
 
   if (!event) {
-    return res.status(404).json({ message: "Event not found" });
+    return next(createApiError(`Event with id ${id} was not found`, 404, "EVENT_NOT_FOUND"));
   }
 
-  const { title, date } = req.body as { title?: unknown; date?: unknown };
-  if (title === undefined && date === undefined) {
-    return res.status(400).json({ message: "At least title or date is required" });
-  }
-  if ((title !== undefined && (typeof title !== "string" || !title.trim())) || (date !== undefined && (typeof date !== "string" || !date.trim()))) {
-    return res.status(400).json({ message: "title and date must be non-empty strings" });
-  }
-
-  if (typeof title === "string") event.title = title.trim();
-  if (typeof date === "string") event.date = date.trim();
+  Object.assign(event, req.body as UpdateEventInput);
 
   return res.status(200).json(event);
 });
 
-eventsRouter.delete("/:id", (req, res) => {
-  const index = events.findIndex((item) => item.id === Number(req.params.id));
+eventsRouter.delete("/:id", validate(eventIdSchema, "params"), (req, res, next) => {
+  const { id } = req.params as unknown as { id: number };
+  const index = events.findIndex((item) => item.id === id);
 
   if (index === -1) {
-    return res.status(404).json({ message: "Event not found" });
+    return next(createApiError(`Event with id ${id} was not found`, 404, "EVENT_NOT_FOUND"));
   }
 
   events.splice(index, 1);

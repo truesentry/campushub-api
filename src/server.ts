@@ -1,9 +1,7 @@
 import app from "./app";
+import { env } from "./config/env";
 
-const port = Number(process.env.PORT) || 3000;
-const nodeEnv = process.env.NODE_ENV || "development";
-
-app.listen(port, () => {
-  console.log(`CampusHub API is running on port ${port}`);
-  console.log(`Environment: ${nodeEnv}`);
+app.listen(env.PORT, () => {
+  console.log(`CampusHub API is running on port ${env.PORT}`);
+  console.log(`Environment: ${env.NODE_ENV}`);
 });

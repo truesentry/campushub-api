@@ -1,0 +1,146 @@
+{
+  "info": {
+    "_postman_id": "cfb0cccb-5ad7-49ce-b9d8-b7e14f2b9091",
+    "name": "CampusHub — HTTP Methods Practice",
+    "description": "8 запитів: 5 позитивних і 3 негативних. Запускайте всю колекцію у вказаному порядку: POST зберігає id створеної події у collection variable, а PUT/PATCH/DELETE використовують його. Секретів немає: достатньо запустити локальний сервер на {{baseUrl}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "createdEventId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01. GET — список подій за query-параметром (200)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Lab-Request", "value": "http-methods-practice" }],
+        "url": {
+          "raw": "{{baseUrl}}/api/events-from-file?date=2026-09-12",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "events-from-file"],
+          "query": [{ "key": "date", "value": "2026-09-12" }]
+        },
+        "description": "Очікується: 200, Content-Type application/json, масив подій із date 2026-09-12. Перевіряє query і custom request/response header."
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Статус 200', () => pm.response.to.have.status(200));",
+        "pm.test('Content-Type — JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+        "pm.test('Custom header присутній', () => pm.expect(pm.response.headers.get('X-API-Name')).to.eql('CampusHub'));",
+        "pm.test('Body містить події за датою', () => { const body = pm.response.json(); pm.expect(body).to.be.an('array').and.not.empty; pm.expect(body[0].date).to.eql('2026-09-12'); });"
+      ] } }]
+    },
+    {
+      "name": "02. POST — створити подію (201)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Lab-Request", "value": "http-methods-practice" }],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Postman: створення події\",\n  \"date\": \"2026-11-20\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{baseUrl}}/api/events-from-file", "host": ["{{baseUrl}}"], "path": ["api", "events-from-file"] },
+        "description": "Очікується: 201, Content-Type application/json, створена подія з UUID. Її id автоматично зберігається для трьох наступних запитів."
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Статус 201', () => pm.response.to.have.status(201));",
+        "pm.test('Content-Type — JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+        "const body = pm.response.json();",
+        "pm.test('Body містить id і назву', () => { pm.expect(body.id).to.match(/^[0-9a-f-]{36}$/i); pm.expect(body.title).to.eql('Postman: створення події'); });",
+        "pm.collectionVariables.set('createdEventId', body.id);"
+      ] } }]
+    },
+    {
+      "name": "03. PUT — повністю замінити подію за path id (200)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Lab-Request", "value": "http-methods-practice" }],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Postman: подію замінено\",\n  \"date\": \"2026-11-21\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{baseUrl}}/api/events-from-file/{{createdEventId}}", "host": ["{{baseUrl}}"], "path": ["api", "events-from-file", "{{createdEventId}}"] },
+        "description": "Очікується: 200, Content-Type application/json, body із повністю заміненими title і date. Перевіряє path-параметр."
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Статус 200', () => pm.response.to.have.status(200));",
+        "pm.test('Content-Type — JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+        "pm.test('Body містить замінені поля', () => { const body = pm.response.json(); pm.expect(body.id).to.eql(pm.collectionVariables.get('createdEventId')); pm.expect(body.title).to.eql('Postman: подію замінено'); pm.expect(body.date).to.eql('2026-11-21'); });"
+      ] } }]
+    },
+    {
+      "name": "04. PATCH — оновити лише назву (200)",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Lab-Request", "value": "http-methods-practice" }],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Postman: часткове оновлення\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{baseUrl}}/api/events-from-file/{{createdEventId}}", "host": ["{{baseUrl}}"], "path": ["api", "events-from-file", "{{createdEventId}}"] },
+        "description": "Очікується: 200, Content-Type application/json, у body змінюється лише title, дата лишається 2026-11-21."
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Статус 200', () => pm.response.to.have.status(200));",
+        "pm.test('Content-Type — JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+        "pm.test('Body містить часткове оновлення', () => { const body = pm.response.json(); pm.expect(body.title).to.eql('Postman: часткове оновлення'); pm.expect(body.date).to.eql('2026-11-21'); });"
+      ] } }]
+    },
+    {
+      "name": "05. DELETE — видалити створену подію (204)",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "X-Lab-Request", "value": "http-methods-practice" }],
+        "url": { "raw": "{{baseUrl}}/api/events-from-file/{{createdEventId}}", "host": ["{{baseUrl}}"], "path": ["api", "events-from-file", "{{createdEventId}}"] },
+        "description": "Очікується: 204 без body та без Content-Type; це коректна HTTP-відповідь для успішного видалення."
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Статус 204', () => pm.response.to.have.status(204));",
+        "pm.test('Content-Type відсутній для 204', () => pm.expect(pm.response.headers.get('Content-Type')).to.not.exist);",
+        "pm.test('Body порожній', () => pm.expect(pm.response.text()).to.eql(''));"
+      ] } }]
+    },
+    {
+      "name": "06. NEGATIVE POST — невалідна дата (400)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Lab-Request", "value": "http-methods-practice" }],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Невалідна подія\",\n  \"date\": \"20-11-2026\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{baseUrl}}/api/events-from-file", "host": ["{{baseUrl}}"], "path": ["api", "events-from-file"] },
+        "description": "Очікується: 400, Content-Type application/json, body із повідомленням про формат дати."
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Статус 400', () => pm.response.to.have.status(400));",
+        "pm.test('Content-Type — JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+        "pm.test('Body містить повідомлення', () => pm.expect(pm.response.json().message).to.include('Потрібно передати назву та дату'));"
+      ] } }]
+    },
+    {
+      "name": "07. NEGATIVE GET — подію не знайдено (404)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Lab-Request", "value": "http-methods-practice" }],
+        "url": { "raw": "{{baseUrl}}/api/events-from-file/not-existing-event-id", "host": ["{{baseUrl}}"], "path": ["api", "events-from-file", "not-existing-event-id"] },
+        "description": "Очікується: 404, Content-Type application/json, body із повідомленням «Подію не знайдено»."
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Статус 404', () => pm.response.to.have.status(404));",
+        "pm.test('Content-Type — JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+        "pm.test('Body містить фрагмент помилки', () => pm.expect(pm.response.json().message).to.include('Подію не знайдено'));"
+      ] } }]
+    },
+    {
+      "name": "08. NEGATIVE DELETE — подію не знайдено (404)",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "X-Lab-Request", "value": "http-methods-practice" }],
+        "url": { "raw": "{{baseUrl}}/api/events-from-file/not-existing-event-id", "host": ["{{baseUrl}}"], "path": ["api", "events-from-file", "not-existing-event-id"] },
+        "description": "Очікується: 404, Content-Type application/json, body із повідомленням «Подію не знайдено»."
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Статус 404', () => pm.response.to.have.status(404));",
+        "pm.test('Content-Type — JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+        "pm.test('Body містить фрагмент помилки', () => pm.expect(pm.response.json().message).to.include('Подію не знайдено'));"
+      ] } }]
+    }
+  ]
+}

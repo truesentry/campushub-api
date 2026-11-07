@@ -1,0 +1,13 @@
+# Use this workspace to collaborate
+workspace:
+  id: f2a4060f-e249-493d-87c9-2e17d8dee9e7
+
+cloudResources:
+  collections:
+    ../postman/collections/CampusHub — HTTP Methods Practice: c326c721-5475-4463-a5f9-919cab596e79
+
+# All resources in the `postman/` folder are automatically registered in Local View.
+# Point to additional files outside the `postman/` folder to register them individually. Example:
+#localResources:
+#  collections:
+#    - ../tests/E2E Test Collection/
